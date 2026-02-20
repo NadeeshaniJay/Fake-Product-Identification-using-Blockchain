@@ -23,7 +23,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "migrate": "truffle migrate --reset",
+    "deploy": "truffle migrate --reset && echo Contract deployed and config updated!"
   },
   "eslintConfig": {
     "extends": [

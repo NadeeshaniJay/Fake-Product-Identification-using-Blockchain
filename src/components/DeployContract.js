@@ -14,15 +14,32 @@ const DeployContract = ({ account, central }) => {
     }
 
     const fetchContractAddress = async () => {
-        if (account) {
-            const address = await central.getCompanySmartContractAddress(account);
+        let resolvedAccount = account;
+
+        if (!resolvedAccount && central && central.signer && central.signer.getAddress) {
+            resolvedAccount = await central.signer.getAddress();
+        }
+
+        if (resolvedAccount) {
+            const address = await central.getCompanySmartContractAddress(resolvedAccount);
             setContractAddress(address);
+
+            if (address === '0x0000000000000000000000000000000000000000') {
+                setStatus('No company contract found for this wallet.');
+            }
         }
     };
 
     const createContract = async () => {
         try {
-            if (!account) throw new Error('Please connect your wallet first.');
+            if (!central) {
+                throw new Error('Central contract not initialized. Please check your network connection and contract configuration.');
+            }
+            
+            if (!account) {
+                throw new Error('Please connect your wallet first.');
+            }
+            
             setStep(1);
             setStatus('Waiting for wallet confirmation...');
             let transaction = await central.createSmartContract();
@@ -35,6 +52,17 @@ const DeployContract = ({ account, central }) => {
             setStatus('Contract deployed successfully!');
             setLoading(false);
         } catch (error) {
+            console.error('Deploy error:', error);
+            
+            // Provide more specific error messages
+            if (error.code === 'ACTION_REJECTED') {
+                error.message = 'Transaction was rejected in MetaMask.';
+            } else if (error.code === 'CALL_EXCEPTION') {
+                error.message = 'Contract call failed. Please check your network and contract configuration.';
+            } else if (error.code === -32603) {
+                error.message = 'Transaction failed. You may already have a contract deployed.';
+            }
+            
             showErrorMessage(error);
         }
     };

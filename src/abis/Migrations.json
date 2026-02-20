@@ -447,7 +447,7 @@
   "sourceMap": "57:304:2:-:0;;;146:43;;;;;;;;;-1:-1:-1;166:5:2;:18;;-1:-1:-1;;;;;;166:18:2;174:10;166:18;;;57:304;;;;;;",
   "deployedSourceMap": "57:304:2:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;105:36;;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;81:20;;;:::i;:::-;;;;;;;:::i;256:103::-;;;;;;:::i;:::-;;:::i;:::-;;105:36;;;;:::o;81:20::-;;;-1:-1:-1;;;;;81:20:2;;:::o;256:103::-;239:5;;-1:-1:-1;;;;;239:5:2;225:10;:19;221:26;;;318:24:::1;:36:::0;;;221:26;256:103;:::o;14:190:3:-;;126:2;114:9;105:7;101:23;97:32;94:2;;;147:6;139;132:22;94:2;-1:-1:-1;175:23:3;;84:120;-1:-1:-1;84:120:3:o;209:203::-;-1:-1:-1;;;;;373:32:3;;;;355:51;;343:2;328:18;;310:102::o;417:177::-;563:25;;;551:2;536:18;;518:76::o",
   "source": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract Migrations {\n  address public owner;\n  uint public last_completed_migration;\n\n  constructor() {\n    owner = msg.sender;\n  }\n\n  modifier restricted() {\n    if (msg.sender == owner) _;\n  }\n\n  function setCompleted(uint completed) public restricted {\n    last_completed_migration = completed;\n  }\n}\n",
-  "sourcePath": "C:\\Users\\nadee_zffrykf\\Downloads\\Fake-Product-Identification-Using-Blockchain-master\\Fake-Product-Identification-Using-Blockchain-master\\Fake Product Identification Using Blockchain\\Contract\\Migrations.sol",
+  "sourcePath": "C:\\Users\\nadee_zffrykf\\Desktop\\Projects\\Fake Product Identification\\Contract\\Migrations.sol",
   "ast": {
     "absolutePath": "project:/Contract/Migrations.sol",
     "exportedSymbols": {
@@ -842,15 +842,18 @@
     "version": "0.8.0+commit.c7dfd78e.Emscripten.clang"
   },
   "networks": {
+    "1337": {
+      "address": "0xe8e19a8a7b43a12a3FF9d428c3a34b8d5Bbe5001"
+    },
     "5777": {
+      "address": "0x6cb31f14E5EF636Db1356f3e22daac845a5d8b80",
       "events": {},
       "links": {},
-      "address": "0x610e5482f8fe395984fE309cb7aFd9e27c92ff26",
-      "transactionHash": "0x3b69583c8e0634782d120f5ab654d961eeff603adbfa86470c627862321337d3"
+      "transactionHash": "0xadfaee67de554a6929d9e4d4ad6eaa2f3cecab2494d8bbbd51cc9859d83b0437"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-02-20T16:56:45.440Z",
+  "updatedAt": "2026-02-20T21:09:33.174Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

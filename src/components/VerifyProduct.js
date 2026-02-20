@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import QrScanner from 'qr-scanner';
+import { ethers } from 'ethers';
 
 const VerifyProduct = ({ central }) => {
     const [companyContractAddress, setCompanyContractAddress] = useState('');
@@ -9,19 +10,69 @@ const VerifyProduct = ({ central }) => {
     const [file, setFile] = useState(null);
     const [scanData, setScanData] = useState(null);
     const [scanError, setScanError] = useState(null);
+    const [qrInvalid, setQrInvalid] = useState(false);
     const fileRef = useRef();
 
     const checkProduct = async () => {
         try {
-            if (!companyContractAddress || !productId) throw new Error('Please fill in all fields.');
+            if (qrInvalid) {
+                return;
+            }
+
+            // Validate central contract exists
+            if (!central) {
+                throw new Error('Central contract not initialized. Please check your network connection.');
+            }
+
+            // Validate inputs
+            if (!companyContractAddress || !productId) {
+                throw new Error('Please fill in all fields.');
+            }
+
+            // Validate company contract address format
+            if (!ethers.utils.isAddress(companyContractAddress)) {
+                throw new Error('Invalid company contract address format.');
+            }
+
+            const code = await central.provider.getCode(companyContractAddress);
+            if (!code || code === '0x') {
+                setProductStatus('Counterfeit');
+                setLoading(false);
+                return;
+            }
+
+            // Validate product ID is a number
+            const productIdNum = parseInt(productId);
+            if (isNaN(productIdNum) || productIdNum < 0) {
+                throw new Error('Product ID must be a valid positive number.');
+            }
+
             setLoading(true);
             setProductStatus(null);
-            const result = await central.checkProduct(companyContractAddress, parseInt(productId));
+            
+            const result = await central.checkProduct(companyContractAddress, productIdNum);
+            // Contract returns "Authenticated" or "Counterfeit" as strings
             setProductStatus(result);
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            alert(`Error: ${error.message}`);
+            console.error('Verification error:', error);
+
+            if (qrInvalid) {
+                return;
+            }
+
+            if (error.code === 'CALL_EXCEPTION' || error.code === -32603) {
+                setProductStatus('Counterfeit');
+                return;
+            }
+            
+            let errorMessage = error.message;
+            if (error.code === 'CALL_EXCEPTION') {
+                errorMessage = 'Could not verify product. The contract address may be invalid or not exist on this network.';
+            }
+            
+            alert(`Error: ${errorMessage}`);
         }
     };
 
@@ -31,20 +82,34 @@ const VerifyProduct = ({ central }) => {
         setFile(selectedFile);
         setScanError(null);
         setScanData(null);
+        setProductStatus(null); // Reset status
+        setQrInvalid(false);
+        
         try {
             const result = await QrScanner.scanImage(selectedFile);
             setScanData(result);
+            
             // Try to auto-fill if result looks like an address
-            if (result.startsWith('0x')) {
+            if (result.startsWith('0x') && ethers.utils.isAddress(result)) {
                 setCompanyContractAddress(result);
+                setQrInvalid(false);
+            } else {
+                // Invalid QR data - show Product Not Found
+                setScanError(null);
+                setProductStatus('Counterfeit');
+                setQrInvalid(true);
             }
         } catch {
-            setScanError('Could not read QR code. Please try a clearer image.');
+            // Could not read QR code - show Product Not Found
+            setScanError(null);
+            setProductStatus('Counterfeit');
+            setQrInvalid(true);
         }
     };
 
-    const isAuthentic = productStatus === true;
-    const isFake = productStatus === false;
+    // Contract returns "Authenticated" or "Counterfeit" strings
+    const isAuthentic = productStatus === "Authenticated";
+    const isFake = productStatus === "Counterfeit";
     const hasResult = productStatus !== null;
 
     return (
@@ -187,7 +252,6 @@ const VerifyProduct = ({ central }) => {
                                 accept=".png,.jpg,.jpeg" style={{ display: 'none' }} />
                             {file && <img className="scan-preview" src={URL.createObjectURL(file)} alt="QR" />}
                             {scanData && <div className="scan-data">Decoded: {scanData}</div>}
-                            {scanError && <div className="scan-error">{scanError}</div>}
                             {!file && <p className="scan-hint">Upload a QR code image to decode the contract address</p>}
                         </div>
                     </div>

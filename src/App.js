@@ -1,28 +1,14 @@
 import { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
-
-
-// Components
 import Navigation from './components/Navigation';
 import Home from './components/Home';
 import VerifyProduct from './components/VerifyProduct';
 import AddProduct from './components/AddProduct';
 import GetContract from './components/GetContract'
-
-// ABIs
 import CentralABI from './abis/Cental_ABI.json';
-
-// Config
 import config from './config.json';
 import DeployContract from './components/DeployContract';
-
-
-// const Home = () => <div>Home Page</div>;
-// const About = () => <div>About Page</div>;
-// const Contact = () => <div>Contact Page</div>;
-
 
 function App() {
   const [provider, setProvider] = useState(null);
@@ -62,7 +48,6 @@ function App() {
       setCentral(null);
       showErrorMessage(error);
     }
-
   }
 
   useEffect(() => {
